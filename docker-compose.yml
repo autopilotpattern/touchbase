@@ -1,0 +1,81 @@
+# Consul as a service discovery tier
+consul:
+    image: progrium/consul:latest
+    command: -server -bootstrap -ui-dir /ui
+    restart: always
+    mem_limit: 128m
+    ports:
+        - 53
+        - 8300
+        - 8301
+        - 8302
+        - 8400
+        - 8500
+    dns:
+       - 127.0.0.1
+
+# Manually bootstrap the first instance, then...
+# Scale this tier and each additional container/instance will automatically
+# self-configure as a member of the cluster
+couchbase:
+    image: misterbisson/triton-couchbase:enterprise-4.0.0-r1
+    restart: always
+    links:
+        - consul
+    mem_limit: 4g
+    ports:
+        - 8091
+        - 8092
+        - 11207
+        - 11210
+        - 11211
+        - 18091
+        - 18092
+    environment:
+        - CONSUL_HOST=http://consul:8500
+        - COUCHBASE_SERVICE_NAME=couchbase
+        - COUCHBASE_USER=Administrator
+        - COUCHBASE_PASS=password
+
+
+# the main application
+touchbase:
+    image: 0x74696d/triton-touchbase
+    links:
+    - consul
+    mem_limit: 1g
+    ports:
+    - 3000
+    restart: always
+    command: >
+      /opt/containerbuddy/containerbuddy
+      -config file:///opt/containerbuddy/touchbase.json
+      node /usr/local/lib/node_modules/Couch411/app.js
+
+# Nginx as a load-balancing tier and reverse proxy
+nginx:
+    image: 0x74696d/triton-cloudflare-demo-nginx
+    mem_limit: 512m
+    ports:
+    - 80
+    links:
+    - consul:consul
+    restart: always
+    environment:
+    - CONTAINERBUDDY=file:///opt/containerbuddy/nginx.json
+    command: >
+      /opt/containerbuddy/containerbuddy
+      nginx -g "daemon off;"
+
+# Support dynamic DNS for the load balancing tier
+# https://www.joyent.com/blog/automatic-dns-updates-with-containerbuddy
+cloudflare:
+    image: 0x74696d/triton-cloudflare
+    mem_limit: 128m
+    links:
+    - consul:consul
+    restart: always
+    env_file: .env
+    command: >
+      /opt/containerbuddy/containerbuddy
+      -config file:///opt/containerbuddy/cloudflare.json

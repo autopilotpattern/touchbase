@@ -1,0 +1,19 @@
+{
+  "consul": "consul:8500",
+  "services": [
+    {
+      "name": "touchbase",
+      "port": 3000,
+      "health": "/usr/bin/curl --fail -s -o /dev/null http://localhost:3000",
+      "poll": 10,
+      "ttl": 25
+    }
+  ],
+  "backends": [
+    {
+      "name": "couchbase",
+      "poll": 7,
+      "onChange": "/opt/containerbuddy/update-config.sh"
+    }
+  ]
+}
