@@ -42,6 +42,7 @@ COPY touchbase.json /opt/containerbuddy/
 COPY update-config.sh /opt/containerbuddy/
 
 # add our starting application configuration
+COPY run-touchbase.sh /usr/local/bin/run-touchbase.sh
 COPY config.json /usr/local/lib/node_modules/Couch411/config.json
 
 # generate a self-signed cert. We would terminate any SSL at the load balancer but

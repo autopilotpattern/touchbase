@@ -1,42 +1,42 @@
 {
-    "couchbase": {
-        "server": "couchbase:8091",
-        "userBucket": "users",
-        "pictureBucket": "users_pictures",
-        "publishBucket": "users_publishments",
-        "TouchbasePort": 3000
-    },
-    "SendGrid": {
-    	"username" : "",
-    	"password" : ""
-    },
-    "dataModel": {
-    	"projectName": "Triton-Touchbase",
-    	"colorHex": "#C62828",
-    	"primaryAttribute": "Name",
-		"arrayAttributes" : ["Expertise","Hobbies"],
-		"stringAttributes": ["Job Title", "Twitter"],
-		"dropdownAttributes": [
-			{
-				"varname": "Base Office",
-				"options": ["San Francisco","Vancouver","Remote"]
-			},
-			{
-				"varname": "Division",
-				"options": ["Engineering","Sales","Marketing","Support","Other Staff"]
-			}
-		],
-		"pubTypes": [
-			{
-				"type": "Github Projects",
-				"imagePath": "GitHub-Mark-120px-plus.png",
-				"icon": "github"
-			},
-			{
-				"type": "Couchbase in the News",
-				"imagePath": "couchbase-logo.png",
-				"icon": "newspaper"
-			}
-		]
-    }
+  "couchbase": {
+    "server": "{{range service "couchbase" "any"}}{{.Address}}{{end}}:8091",
+    "userBucket": "users",
+    "pictureBucket": "users_pictures",
+    "publishBucket": "users_publishments",
+    "TouchbasePort": 3000
+  },
+  "SendGrid": {
+    "username" : "{{ env SENDGRID_USER }}",
+    "password" : "{{ env SENDGRID_PASS }}"
+  },
+  "dataModel": {
+    "projectName": "Triton-Touchbase",
+    "colorHex": "#ff6500",
+    "primaryAttribute": "Name",
+    "arrayAttributes" : ["Expertise","Hobbies"],
+    "stringAttributes": ["Job Title", "Twitter"],
+    "dropdownAttributes": [
+      {
+        "varname": "Base Office",
+        "options": ["San Francisco","Vancouver","Remote"]
+      },
+      {
+        "varname": "Division",
+        "options": ["Engineering","Sales","Marketing","Support","Other"]
+      }
+    ],
+    "pubTypes": [
+      {
+        "type": "Github Projects",
+        "imagePath": "GitHub-Mark-120px-plus.png",
+        "icon": "github"
+      },
+      {
+        "type": "Triton",
+        "imagePath": "https://docs.joyent.com/assets/images/logo-black.svg",
+        "icon": "newspaper"
+      }
+    ]
+  }
 }

@@ -54,7 +54,7 @@ touchbase:
     command: >
       /opt/containerbuddy/containerbuddy
       -config file:///opt/containerbuddy/touchbase.json
-      node /usr/local/lib/node_modules/Couch411/app.js
+      /usr/local/bin/run-touchbase.sh
 
 # Nginx as a load-balancing tier and reverse proxy
 nginx:
