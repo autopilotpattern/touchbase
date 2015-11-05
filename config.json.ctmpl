@@ -7,8 +7,8 @@
     "TouchbasePort": 3000
   },
   "SendGrid": {
-    "username" : "{{ env SENDGRID_USER }}",
-    "password" : "{{ env SENDGRID_PASS }}"
+    "username" : "",
+    "password" : "",
   },
   "dataModel": {
     "projectName": "Triton-Touchbase",

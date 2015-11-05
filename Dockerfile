@@ -12,9 +12,10 @@ RUN apt-get update && \
     curl && \
     rm -rf /var/lib/apt/lists/*
 
-# touchbase is our application
+# touchbase is our application; we're using a fork that removes
+# the requirement for SendGrid verification of emails
 # node-gyp is required to support the Couchbase C libs for Node
-RUN git clone https://github.com/couchbaselabs/touchbase.git /tmp && \
+RUN git clone -b no_sendgrid https://github.com/tgross/touchbase.git /tmp && \
     npm install -g \
     node-gyp \
     bower \
