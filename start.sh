@@ -199,6 +199,17 @@ scaleUp() {
     ${COMPOSE} scale nginx=2
 }
 
+# build and ship the Touchbase image and the supporting Nginx
+# image to the Docker Hub
+release() {
+	docker-compose -p tb -f docker-compose-local.yml build touchbase
+	docker-compose -p tb -f docker-compose-local.yml build nginx
+	docker tag -f tb_touchbase 0x74696d/triton-touchbase
+	docker tag -f tb_nginx 0x74696d/triton-touchbase-demo-nginx
+	docker push 0x74696d/triton-touchbase
+	docker push 0x74696d/triton-touchbase-demo-nginx
+}
+
 while getopts "f:p:h" optchar; do
     case "${optchar}" in
         f) COMPOSE_CFG=" -f ${OPTARG}" ;;

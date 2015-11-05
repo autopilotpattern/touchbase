@@ -54,7 +54,7 @@ touchbase:
 
 # Nginx as a load-balancing tier and reverse proxy
 nginx:
-    image: 0x74696d/triton-cloudflare-demo-nginx
+    image: 0x74696d/triton-touchbase-demo-nginx
     mem_limit: 512m
     ports:
     - 80
