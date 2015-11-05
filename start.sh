@@ -2,12 +2,8 @@
 set -e -o pipefail
 
 # default values which can be overriden by -f or -p flags
-. .env
 COMPOSE_CFG=
 PREFIX=tb
-CB_USER=${CB_USER:-Administrator}
-CB_PASSWORD=${CB_PASSWORD:-password}
-CB_RAM_QUOTA=${CB_RAM_QUOTA:-100}
 
 usage() {
     echo 'Usage ./start.sh [-f docker-compose.yml] [-p project] [--no-index] [cmd] [args]'
@@ -20,6 +16,21 @@ usage() {
     echo
     echo 'Optionally pass a command and parameters and this script will execute just'
     echo 'that command, for testing purposes.'
+}
+
+env() {
+    if [ ! -f ".env" ]; then
+        echo 'You need a configuration file with credentials.'
+        echo 'Copying .env.example to .env'
+        cp .env.example .env
+        cat .env.example
+        exit 1
+    else
+        . .env
+    fi
+    CB_USER=${CB_USER:-Administrator}
+    CB_PASSWORD=${CB_PASSWORD:-password}
+    CB_RAM_QUOTA=${CB_RAM_QUOTA:-100}
 }
 
 prep() {
@@ -206,6 +217,7 @@ if [ ! -z "$cmd" ]; then
     exit
 fi
 
+env
 prep
 startDatabase
 showConsoles
