@@ -8,7 +8,7 @@
   },
   "SendGrid": {
     "username" : "",
-    "password" : "",
+    "password" : ""
   },
   "dataModel": {
     "projectName": "Triton-Touchbase",

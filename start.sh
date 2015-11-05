@@ -171,6 +171,7 @@ startApp() {
 # start up Nginx and launch it in the browser
 startNginx() {
     writeTemplate nginx ./nginx/default.ctmpl
+    echo
     ${COMPOSE} up -d nginx
     local NGINX=$(getIpPort nginx 80)
     echo "Waiting for Nginx at $NGINX to pick up initial configuration."
