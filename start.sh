@@ -99,13 +99,14 @@ createBucket() {
            --bucket=$1 \
            --bucket-type=couchbase \
            --bucket-ramsize=${CB_RAM_QUOTA} \
-           --bucket-replica=1
+           --bucket-replica=1 \
+           --wait # need to wait otherwise index creation can fail later
 }
 
 # send a REST API call to Couchbase to create a N1QL index
 createIndex() {
     echo $1
-    curl -s -X POST http://${N1QLAPI}/query/service \
+    curl -s --fail -s -X POST http://${N1QLAPI}/query/service \
          -u ${CB_USER}:${CB_PASSWORD} \
          -d "statement=$1"
 }
@@ -142,7 +143,7 @@ writeTemplate() {
         # we'll sometimes get an HTTP500 here if consul hasn't completed
         # it's leader election on boot yet, so poll till we get a good response.
         sleep 1
-        curl --fail -s -X PUT --data-binary @./$service/$template \
+        curl --fail -s -X PUT --data-binary @$template \
              http://${CONSUL}/v1/kv/$service/template && break
         echo -ne .
     done
@@ -150,14 +151,15 @@ writeTemplate() {
 
 # start up the Touchbase application
 startApp() {
-    writeTemplate touchbase config.json.ctmpl
+    writeTemplate touchbase ./config.json.ctmpl
+    echo
     ${COMPOSE} up -d touchbase
     local TB=$(getIpPort touchbase 3000)
 }
 
 # start up Nginx and launch it in the browser
 startNginx() {
-    writeTemplate nginx nginx/default.ctmpl
+    writeTemplate nginx ./nginx/default.ctmpl
     ${COMPOSE} up -d nginx
     local NGINX=$(getIpPort nginx 80)
     echo "Waiting for Nginx at $NGINX to pick up initial configuration."
