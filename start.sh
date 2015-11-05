@@ -89,7 +89,9 @@ removeBucket() {
          -u ${CB_USER}:${CB_PASSWORD}
 }
 
-# send a REST API call to Couchbase to create a CB bucket
+# use Docker exec to use the Couchbase CLI to create a CB bucket;
+# this avoids using the REST API so we don't have to deal with proxy port
+# configuration
 createBucket() {
     docker exec -it ${PREFIX}_couchbase_1 \
            /opt/couchbase/bin/couchbase-cli bucket-create -c 127.0.0.1:8091 \
@@ -126,23 +128,47 @@ setupCouchbase() {
     createIndex 'CREATE PRIMARY INDEX ON users_publishments'
 }
 
-# start up the Touchbase application and launch it in the
-# browser
-startApp() {
-    # TODO: inject template to Consul
-    ${COMPOSE} up -d touchbase
-    local TB=$(getIpPort touchbase 3000)
-    echo
-    echo 'Opening touchbase application'
-    command -v open >/dev/null 2>&1 && `open http://${TB}`
+# write a template file for consul-template to a key in Consul.
+# the key will be written to <service>/template.
+# usage:
+# writeTemplate <service> <relative/path/to/template>
+writeTemplate() {
+    local CONSUL=$(getIpPort consul 8500)
+    local service=$1
+    local template=$2
+    echo "Writing $template to key $service/template in Consul"
+    while :
+    do
+        # we'll sometimes get an HTTP500 here if consul hasn't completed
+        # it's leader election on boot yet, so poll till we get a good response.
+        sleep 1
+        curl --fail -s -X PUT --data-binary @./$service/$template \
+             http://${CONSUL}/v1/kv/$service/template && break
+        echo -ne .
+    done
 }
 
+# start up the Touchbase application
+startApp() {
+    writeTemplate touchbase config.json.ctmpl
+    ${COMPOSE} up -d touchbase
+    local TB=$(getIpPort touchbase 3000)
+}
+
+# start up Nginx and launch it in the browser
 startNginx() {
-    # TODO: inject template to Consul
+    writeTemplate nginx nginx/default.ctmpl
     ${COMPOSE} up -d nginx
     local NGINX=$(getIpPort nginx 80)
+    echo "Waiting for Nginx at $NGINX to pick up initial configuration."
+    while :
+    do
+        sleep 1
+        curl -s --fail -o /dev/null "http://${NGINX}" && break
+        echo -ne .
+    done
     echo
-    echo 'Opening web page'
+    echo 'Opening web page...'
     command -v open >/dev/null 2>&1 && `open http://${NGINX}`
 }
 
@@ -153,8 +179,7 @@ startCloudflare() {
 # scale the entire application to 2 Nginx, 2 app servers, 3 CB nodes
 scaleUp() {
     echo
-    echo 'Scaling Couchbase cluster to three nodes'
-    echo "${COMPOSE} scale couchbase=3"
+    echo 'Scaling cluster to 3 Couchbase nodes, 2 app nodes, 2 Nginx nodes.'
     ${COMPOSE} scale couchbase=3
     ${COMPOSE} scale touchbase=2
     ${COMPOSE} scale nginx=2
