@@ -91,4 +91,4 @@ Touchbase cluster is launched!
 Try scaling it up by running: ./start scale
 ```
 
-If you do so you'll be running `docker-compose scale` operations that add 2 more Couchbase nodes and 1 more Touchbase and Nginx nodes. You can watch as nodes become live by checking out the Consul and Couchbase web UIs.
+If you do so you'll be running `docker-compose scale` operations that add 2 more Couchbase and Touchbase nodes and 1 more Nginx node. You can watch as nodes become live by checking out the Consul and Couchbase web UIs.
