@@ -3,6 +3,7 @@ upstream touchbase {
     {{range service "touchbase"}}
     server {{.Address}}:{{.Port}};
     {{end}}
+    least_conn;
 }
 
 server {

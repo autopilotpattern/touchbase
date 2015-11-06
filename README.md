@@ -30,7 +30,7 @@ The Touchbase service's Containerbuddy has an `onChange` handler that calls out 
 
 ### Nginx
 
-The Nginx virtualhost config has an `upstream` directive to run a round-robin load balancer for the backend Touchbase application nodes. When Touchbase nodes come online, they'll register themselves with Consul. The Nginx service's Containerbuddy has an `onChange` handler that calls out to `consul-template` to write out a new virtualhost configuration file based a template that we've stored in Consul. It then fires an `nginx -s reload` signal to Nginx, which causes it to [gracefully reload](http://nginx.org/en/docs/control.html#reconfiguration) its configuration.
+The Nginx virtualhost config has an `upstream` directive to run a least-conns load balancer for the backend Touchbase application nodes. When Touchbase nodes come online, they'll register themselves with Consul. The Nginx service's Containerbuddy has an `onChange` handler that calls out to `consul-template` to write out a new virtualhost configuration file based a template that we've stored in Consul. It then fires an `nginx -s reload` signal to Nginx, which causes it to [gracefully reload](http://nginx.org/en/docs/control.html#reconfiguration) its configuration.
 
 ### CloudFlare-watcher
 
