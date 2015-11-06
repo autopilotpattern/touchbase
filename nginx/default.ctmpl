@@ -1,0 +1,24 @@
+upstream touchbase {
+    # write the address:port pairs for each healthy Touchbase node
+    {{range service "touchbase"}}
+    server {{.Address}}:{{.Port}};
+    {{end}}
+    least_conn;
+}
+
+server {
+    listen       80;
+    server_name  _;
+
+    location /health {
+        # requires http_stub_status_module
+        stub_status;
+        allow 127.0.0.1;
+        deny all;
+    }
+
+    location / {
+        proxy_pass http://touchbase;
+        proxy_redirect off;
+    }
+}
