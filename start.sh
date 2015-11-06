@@ -191,7 +191,7 @@ startCloudflare() {
 }
 
 # scale the entire application to 2 Nginx, 2 app servers, 3 CB nodes
-scaleUp() {
+scale() {
     echo
     echo 'Scaling cluster to 3 Couchbase nodes, 2 app nodes, 2 Nginx nodes.'
     ${COMPOSE} scale couchbase=3
@@ -237,4 +237,7 @@ setupCouchbase
 startApp
 startNginx
 startCloudflare
-scaleUp
+
+echo
+echo 'Touchbase cluster is launched!'
+echo "Try scaling it up by running: ./start ${CONFIG_FILE} scaleUp"
