@@ -2,7 +2,7 @@
 set -e -o pipefail
 
 # default values which can be overriden by -f or -p flags
-COMPOSE_CFG=
+CONFIG_FILE=
 PREFIX=tb
 
 usage() {
@@ -212,15 +212,19 @@ release() {
 
 while getopts "f:p:h" optchar; do
     case "${optchar}" in
-        f) COMPOSE_CFG=" -f ${OPTARG}" ;;
+        f) CONFIG_FILE=${OPTARG} ;;
         p) PREFIX=${OPTARG} ;;
         h) usage; exit 0;;
     esac
 done
 shift $(expr $OPTIND - 1 )
 
+COMPOSE_CFG=
+if [ -z ${CONFIG_FILE} ]; then
+    COMPOSE_CFG="-f ${CONFIG_FILE}"
+fi
+
 COMPOSE="docker-compose -p ${PREFIX}${COMPOSE_CFG:-}"
-CONFIG_FILE=${COMPOSE_CFG:-docker-compose.yml}
 
 cmd=$1
 if [ ! -z "$cmd" ]; then
@@ -240,4 +244,4 @@ startCloudflare
 
 echo
 echo 'Touchbase cluster is launched!'
-echo "Try scaling it up by running: ./start.sh ${CONFIG_FILE} scale"
+echo "Try scaling it up by running: ./start.sh ${COMPOSE_CFG:-} scale"
