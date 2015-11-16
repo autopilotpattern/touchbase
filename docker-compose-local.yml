@@ -26,7 +26,6 @@ couchbase:
     links:
         - consul
     mem_limit: 1g
-    env_file: .env
     ports:
         - 8091
         - 8092
@@ -39,6 +38,8 @@ couchbase:
     environment:
         - CONSUL_HOST=http://consul:8500
         - COUCHBASE_SERVICE_NAME=couchbase
+        - COUCHBASE_USER
+        - COUCHBASE_PASSWORD
 
 # the main application
 touchbase:
