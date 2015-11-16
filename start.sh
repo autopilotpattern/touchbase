@@ -120,7 +120,7 @@ createBucket() {
 createIndex() {
     echo $1
     docker exec -it ${PREFIX}_couchbase_1 \
-           curl -s --fail -s -X POST http://${N1QLAPI}/query/service \
+           curl -s --fail -X POST http://${N1QLAPI}/query/service \
            -u ${CB_USER}:${CB_PASSWORD} \
            -d "statement=$1"
 }
