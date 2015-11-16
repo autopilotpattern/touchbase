@@ -96,8 +96,10 @@ showConsoles() {
 
 # send a REST API call to remove a CB bucket
 removeBucket() {
-    curl -X DELETE -vvv http://${CBAPI}/pools/default/buckets/$1 \
-         -u ${CB_USER}:${CB_PASSWORD}
+    docker exec -it ${PREFIX}_couchbase_1 \
+           /opt/couchbase/bin/couchbase-cli bucket-delete -c 127.0.0.1:8091 \
+           -u ${CB_USER} -p ${CB_PASSWORD} \
+           --bucket=$1
 }
 
 # use Docker exec to use the Couchbase CLI to create a CB bucket;
@@ -117,9 +119,10 @@ createBucket() {
 # send a REST API call to Couchbase to create a N1QL index
 createIndex() {
     echo $1
-    curl -s --fail -s -X POST http://${N1QLAPI}/query/service \
-         -u ${CB_USER}:${CB_PASSWORD} \
-         -d "statement=$1"
+    docker exec -it ${PREFIX}_couchbase_1 \
+           curl -s --fail -s -X POST http://${N1QLAPI}/query/service \
+           -u ${CB_USER}:${CB_PASSWORD} \
+           -d "statement=$1"
 }
 
 # create all buckets and indexes we need. if you modify the names
