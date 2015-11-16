@@ -28,8 +28,8 @@ env() {
     else
         . .env
     fi
-    CB_USER=${CB_USER:-Administrator}
-    CB_PASSWORD=${CB_PASSWORD:-password}
+    COUCHBASE_USER=${COUCHBASE_USER:-Administrator}
+    COUCHBASE_PASSWORD=${COUCHBASE_PASSWORD:-password}
     CB_RAM_QUOTA=${CB_RAM_QUOTA:-100}
 }
 
@@ -97,7 +97,7 @@ showConsoles() {
 # send a REST API call to remove a CB bucket
 removeBucket() {
     curl -X DELETE -vvv http://${CBAPI}/pools/default/buckets/$1 \
-         -u ${CB_USER}:${CB_PASSWORD}
+         -u ${COUCHBASE_USER}:${COUCHBASE_PASSWORD}
 }
 
 # use Docker exec to use the Couchbase CLI to create a CB bucket;
@@ -106,7 +106,7 @@ removeBucket() {
 createBucket() {
     docker exec -it ${PREFIX}_couchbase_1 \
            /opt/couchbase/bin/couchbase-cli bucket-create -c 127.0.0.1:8091 \
-           -u ${CB_USER} -p ${CB_PASSWORD} \
+           -u ${COUCHBASE_USER} -p ${COUCHBASE_PASSWORD} \
            --bucket=$1 \
            --bucket-type=couchbase \
            --bucket-ramsize=${CB_RAM_QUOTA} \
@@ -118,7 +118,7 @@ createBucket() {
 createIndex() {
     echo $1
     curl -s --fail -s -X POST http://${N1QLAPI}/query/service \
-         -u ${CB_USER}:${CB_PASSWORD} \
+         -u ${COUCHBASE_USER}:${COUCHBASE_PASSWORD} \
          -d "statement=$1"
 }
 
@@ -240,4 +240,4 @@ startCloudflare
 
 echo
 echo 'Touchbase cluster is launched!'
-echo "Try scaling it up by running: ./start ${CONFIG_FILE} scale"
+echo "Try scaling it up by running: ./start.sh ${CONFIG_FILE} scale"

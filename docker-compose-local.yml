@@ -39,8 +39,6 @@ couchbase:
     environment:
         - CONSUL_HOST=http://consul:8500
         - COUCHBASE_SERVICE_NAME=couchbase
-        - COUCHBASE_USER=Administrator
-        - COUCHBASE_PASS=password
 
 # the main application
 touchbase:

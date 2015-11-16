@@ -32,12 +32,10 @@ couchbase:
         - 11211
         - 18091
         - 18092
+    env_file: .env
     environment:
         - CONSUL_HOST=http://consul:8500
         - COUCHBASE_SERVICE_NAME=couchbase
-        - COUCHBASE_USER=Administrator
-        - COUCHBASE_PASS=password
-
 
 # the main application
 touchbase:
