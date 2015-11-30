@@ -58,9 +58,9 @@ CF_AUTH_EMAIL=<the email address associated with your CloudFlare account>
 CF_ROOT_DOMAIN=<the root domain you want to manage. ex. example.com>
 SERVICE=nginx <the name of the service you want to monitor>
 RECORD=<the A-record you want to manage. ex. my.example.com>
-TTL=600 <the DNS TTL you want>
-CB_USER=<the administrative user you want for your Couchbase cluster>
-CB_PASSWORD=<the password you want for that Couchbase user>
+TTL=600 <the DNS TTL you want, in seconds. min 1, max 2147483647>
+COUCHBASE_USER=<the administrative user you want for your Couchbase cluster>
+COUCHBASE_PASSWORD=<the password you want for that Couchbase user>
 
 ```
 
@@ -68,7 +68,7 @@ As the start script runs, it will launch the Consul web UI and the Couchbase web
 
 ```
 Touchbase cluster is launched!
-Try scaling it up by running: ./start scale
+Try scaling it up by running: ./start.sh scale
 ```
 
 If you do so you'll be running `docker-compose scale` operations that add 2 more Couchbase and Touchbase nodes and 1 more Nginx node. You can watch as nodes become live by checking out the Consul and Couchbase web UIs.

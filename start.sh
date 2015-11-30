@@ -2,7 +2,7 @@
 set -e -o pipefail
 
 # default values which can be overriden by -f or -p flags
-COMPOSE_CFG=
+CONFIG_FILE=
 PREFIX=tb
 
 usage() {
@@ -28,8 +28,8 @@ env() {
     else
         . .env
     fi
-    CB_USER=${CB_USER:-Administrator}
-    CB_PASSWORD=${CB_PASSWORD:-password}
+    COUCHBASE_USER=${COUCHBASE_USER:-Administrator}
+    COUCHBASE_PASSWORD=${COUCHBASE_PASSWORD:-password}
     CB_RAM_QUOTA=${CB_RAM_QUOTA:-100}
 }
 
@@ -98,7 +98,7 @@ showConsoles() {
 removeBucket() {
     docker exec -it ${PREFIX}_couchbase_1 \
            /opt/couchbase/bin/couchbase-cli bucket-delete -c 127.0.0.1:8091 \
-           -u ${CB_USER} -p ${CB_PASSWORD} \
+           -u ${COUCHBASE_USER} -p ${COUCHBASE_PASSWORD} \
            --bucket=$1
 }
 
@@ -108,7 +108,7 @@ removeBucket() {
 createBucket() {
     docker exec -it ${PREFIX}_couchbase_1 \
            /opt/couchbase/bin/couchbase-cli bucket-create -c 127.0.0.1:8091 \
-           -u ${CB_USER} -p ${CB_PASSWORD} \
+           -u ${COUCHBASE_USER} -p ${COUCHBASE_PASSWORD} \
            --bucket=$1 \
            --bucket-type=couchbase \
            --bucket-ramsize=${CB_RAM_QUOTA} \
@@ -121,7 +121,7 @@ createIndex() {
     echo $1
     docker exec -it ${PREFIX}_couchbase_1 \
            curl -s --fail -X POST http://${N1QLAPI}/query/service \
-           -u ${CB_USER}:${CB_PASSWORD} \
+           -u ${COUCHBASE_USER}:${COUCHBASE_PASSWORD} \
            -d "statement=$1"
 }
 
@@ -215,15 +215,19 @@ release() {
 
 while getopts "f:p:h" optchar; do
     case "${optchar}" in
-        f) COMPOSE_CFG=" -f ${OPTARG}" ;;
+        f) CONFIG_FILE=${OPTARG} ;;
         p) PREFIX=${OPTARG} ;;
         h) usage; exit 0;;
     esac
 done
 shift $(expr $OPTIND - 1 )
 
+COMPOSE_CFG=
+if [ -z ${CONFIG_FILE} ]; then
+    COMPOSE_CFG="-f ${CONFIG_FILE}"
+fi
+
 COMPOSE="docker-compose -p ${PREFIX}${COMPOSE_CFG:-}"
-CONFIG_FILE=${COMPOSE_CFG:-docker-compose.yml}
 
 cmd=$1
 if [ ! -z "$cmd" ]; then
@@ -243,4 +247,4 @@ startCloudflare
 
 echo
 echo 'Touchbase cluster is launched!'
-echo "Try scaling it up by running: ./start ${CONFIG_FILE} scale"
+echo "Try scaling it up by running: ./start.sh ${COMPOSE_CFG:-} scale"
