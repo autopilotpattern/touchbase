@@ -223,11 +223,11 @@ done
 shift $(expr $OPTIND - 1 )
 
 COMPOSE_CFG=
-if [ -z ${CONFIG_FILE} ]; then
+if [ -n "${CONFIG_FILE}" ]; then
     COMPOSE_CFG="-f ${CONFIG_FILE}"
 fi
 
-COMPOSE="docker-compose -p ${PREFIX}${COMPOSE_CFG:-}"
+COMPOSE="docker-compose -p ${PREFIX} ${COMPOSE_CFG}"
 
 cmd=$1
 if [ ! -z "$cmd" ]; then
