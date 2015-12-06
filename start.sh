@@ -49,10 +49,10 @@ getIpPort() {
         local ip=$(sdc-listmachines --name ${PREFIX}_$1_1 | json -a ips.1)
         local port=$2
     else
-        local ip=$(docker-machine ip default)
+        local ip=$(docker-machine ip default 2>/dev/null || true)
         local port=$(docker inspect ${PREFIX}_$1_1 | json -a NetworkSettings.Ports."$2/tcp".0.HostPort)
     fi
-    echo "$ip:$port"
+    echo "${ip:-`hostname -i`}:$port"
 }
 
 # start and initialize the Couchbase cluster, along with Consul
@@ -84,14 +84,14 @@ showConsoles() {
     echo
     echo 'Consul is now running'
     echo "Dashboard: $CONSUL"
-    command -v open >/dev/null 2>&1 && `open http://${CONSUL}/ui/`
+    command -v open >/dev/null 2>&1 && `open http://${CONSUL}/ui/` || true
 
     local CBDASHBOARD=$(getIpPort couchbase 8091)
     echo
     echo 'Couchbase cluster running and bootstrapped'
     echo "Dashboard: $CBDASHBOARD"
     echo 'The username and password are printed in earlier messages'
-    command -v open >/dev/null 2>&1 && `open http://${CBDASHBOARD}/index.html#sec=servers`
+    command -v open >/dev/null 2>&1 && `open http://${CBDASHBOARD}/index.html#sec=servers` || true
 }
 
 # send a REST API call to remove a CB bucket
@@ -186,7 +186,7 @@ startNginx() {
     done
     echo
     echo 'Opening web page...'
-    command -v open >/dev/null 2>&1 && `open http://${NGINX}`
+    command -v open >/dev/null 2>&1 && `open http://${NGINX}` || true
 }
 
 startCloudflare() {
