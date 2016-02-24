@@ -28,8 +28,8 @@ env() {
     else
         . .env
     fi
-    COUCHBASE_USER=${COUCHBASE_USER:-Administrator}
-    COUCHBASE_PASSWORD=${COUCHBASE_PASSWORD:-password}
+    export COUCHBASE_USER=${COUCHBASE_USER:-Administrator}
+    export COUCHBASE_PASS=${COUCHBASE_PASS:-password}
     CB_RAM_QUOTA=${CB_RAM_QUOTA:-100}
 }
 
@@ -98,7 +98,7 @@ showConsoles() {
 removeBucket() {
     docker exec -it ${PREFIX}_couchbase_1 \
            /opt/couchbase/bin/couchbase-cli bucket-delete -c 127.0.0.1:8091 \
-           -u ${COUCHBASE_USER} -p ${COUCHBASE_PASSWORD} \
+           -u ${COUCHBASE_USER} -p ${COUCHBASE_PASS} \
            --bucket=$1
 }
 
@@ -108,7 +108,7 @@ removeBucket() {
 createBucket() {
     docker exec -it ${PREFIX}_couchbase_1 \
            /opt/couchbase/bin/couchbase-cli bucket-create -c 127.0.0.1:8091 \
-           -u ${COUCHBASE_USER} -p ${COUCHBASE_PASSWORD} \
+           -u ${COUCHBASE_USER} -p ${COUCHBASE_PASS} \
            --bucket=$1 \
            --bucket-type=couchbase \
            --bucket-ramsize=${CB_RAM_QUOTA} \
@@ -121,7 +121,7 @@ createIndex() {
     echo $1
     docker exec -it ${PREFIX}_couchbase_1 \
            curl -s --fail -X POST http://${N1QLAPI}/query/service \
-           -u ${COUCHBASE_USER}:${COUCHBASE_PASSWORD} \
+           -u ${COUCHBASE_USER}:${COUCHBASE_PASS} \
            -d "statement=$1"
 }
 
