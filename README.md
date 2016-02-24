@@ -60,7 +60,7 @@ SERVICE=nginx <the name of the service you want to monitor>
 RECORD=<the A-record you want to manage. ex. my.example.com>
 TTL=600 <the DNS TTL you want, in seconds. min 120, max 2147483647>
 COUCHBASE_USER=<the administrative user you want for your Couchbase cluster>
-COUCHBASE_PASSWORD=<the password you want for that Couchbase user>
+COUCHBASE_PASS=<the password you want for that Couchbase user>
 
 ```
 
