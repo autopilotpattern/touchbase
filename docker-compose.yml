@@ -13,6 +13,8 @@ consul:
         - 8500
     dns:
        - 127.0.0.1
+    labels:
+        - triton.cns.services=tb-consul
 
 # Manually bootstrap the first instance, then...
 # Scale this tier and each additional container/instance will automatically
@@ -32,10 +34,12 @@ couchbase:
         - 11211
         - 18091
         - 18092
-    env_file: .env
+    env_file: _env
     environment:
         - CONSUL_HOST=http://consul:8500
         - COUCHBASE_SERVICE_NAME=couchbase
+    labels:
+        - triton.cns.services=tb-couchbase
 
 # the main application
 touchbase:
@@ -50,6 +54,8 @@ touchbase:
       /opt/containerbuddy/containerbuddy
       -config file:///opt/containerbuddy/touchbase.json
       /usr/local/bin/run-touchbase.sh
+    labels:
+        - triton.cns.services=tb-touchbase
 
 # Nginx as a load-balancing tier and reverse proxy
 nginx:
@@ -65,16 +71,5 @@ nginx:
     command: >
       /opt/containerbuddy/containerbuddy
       nginx -g "daemon off;"
-
-# Support dynamic DNS for the load balancing tier
-# https://www.joyent.com/blog/automatic-dns-updates-with-containerbuddy
-cloudflare:
-    image: 0x74696d/triton-cloudflare
-    mem_limit: 128m
-    links:
-    - consul:consul
-    restart: always
-    env_file: .env
-    command: >
-      /opt/containerbuddy/containerbuddy
-      -config file:///opt/containerbuddy/cloudflare.json
+    labels:
+        - triton.cns.services=tb-nginx

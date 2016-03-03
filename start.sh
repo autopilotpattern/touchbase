@@ -19,18 +19,101 @@ usage() {
 }
 
 env() {
-    if [ ! -f ".env" ]; then
+    if [ ! -f "_env" ]; then
         echo 'You need a configuration file with credentials.'
-        echo 'Copying .env.example to .env'
-        cp .env.example .env
-        cat .env.example
+        echo 'Copying _env.example to _env'
+        cp _env.example _env
+        cat _env.example
         exit 1
     else
-        . .env
+        . _env
     fi
     export COUCHBASE_USER=${COUCHBASE_USER:-Administrator}
     export COUCHBASE_PASS=${COUCHBASE_PASS:-password}
     CB_RAM_QUOTA=${CB_RAM_QUOTA:-100}
+}
+
+
+tritonConfigured() {
+
+    # is node-triton installed?
+    local triton_installed=0
+    command -v triton >/dev/null 2>&1 && triton_installed=1
+    if [ "0" = "$triton_installed" ]; then
+        echo
+        echo "Error!"
+        echo "The Triton CLI tool does not appear to be installed!"
+        echo
+        echo "Please visit:"
+        echo "https://www.joyent.com/blog/introducing-the-triton-command-line-tool"
+        echo "for installation instructions."
+        echo
+
+        sleep 3
+        command -v open >/dev/null 2>&1 && `open https://www.joyent.com/blog/introducing-the-triton-command-line-tool` || true
+
+        exit
+    fi
+
+    # Get username from Docker
+    local docker_user=$(docker info 2>&1 | grep "SDCAccount:" | awk -F": " '{print $2}' OFS="/")
+
+    # Get username from Triton
+    local triton_user=$(triton profile get | grep "account:" | awk -F": " '{print $2}' OFS="/")
+
+    # Get DC from Docker
+    local docker_dc=$(echo $DOCKER_HOST | awk -F"/" '{print $3}' OFS="/" | awk -F"\." '{print $1}' OFS="/")
+
+    # Get DC from Triton
+    local triton_dc=$(triton profile get | grep "url:" | awk -F"/" '{print $3}' OFS="/" | awk -F"\." '{print $1}' OFS="/")
+
+    if [ ! "$docker_user" = "$triton_user" ] || [ ! "$docker_dc" = "$triton_dc" ]; then
+        echo
+        echo "Error!"
+        echo "The Triton CLI configuration does not match the Docker CLI configuration!"
+        echo
+        echo "Docker user: ${docker_user}"
+        echo "Triton user: ${docker_user}"
+        echo
+        echo "Docker data center: ${docker_dc}"
+        echo "Triton data center: ${triton_dc}"
+        echo
+        echo "The Triton CLI tool must be configured to use the same user and data center as the Docker CLI."
+        echo
+        echo "Please visit:"
+        echo "https://www.joyent.com/blog/introducing-the-triton-command-line-tool#using-profiles"
+        echo "for instructions on how to configure and set profiles for Triton."
+        echo
+
+        sleep 3
+        command -v open >/dev/null 2>&1 && `open "https://www.joyent.com/blog/introducing-the-triton-command-line-tool#using-profiles"` || true
+
+        exit
+    fi
+
+    # Is Triton CNS enabled
+    local triton_cns_enabled=$(triton account get | grep cns | awk -F": " '{print $2}' OFS="/")
+
+    if [ ! "true" = "$triton_cns_enabled" ]; then
+        echo
+        echo "Notice!"
+        echo "Triton CNS is not enabled for this account."
+        echo
+        echo "Triton CNS, an automated DNS built into Triton, is not required, but this blueprint demonstrates its use."
+        echo
+        echo "Please visit:"
+        echo "https://www.joyent.com/blog/NEW-URL-HERE"
+        echo "for information and usage details for Triton CNS."
+        echo
+        echo "Enable Triton CNS with the following command:"
+        echo
+        echo "triton account update triton_cns_enabled=true"
+        echo
+
+        sleep 3
+        command -v open >/dev/null 2>&1 && `open "https://www.joyent.com/blog/NEW-URL-HERE"` || true
+        sleep 3
+    fi
 }
 
 prep() {
@@ -43,10 +126,15 @@ prep() {
 }
 
 # get the IP:port of a container via either the local docker-machine or from
-# sdc-listmachines.
+# triton inst get $instance_name.
 getIpPort() {
     if [ -z "${COMPOSE_CFG}" ]; then
-        local ip=$(sdc-listmachines --name ${PREFIX}_$1_1 | json -a ips.1)
+        # try to get a DNS name from Triton CNS
+        local ip=$(triton inst get ${PREFIX}_$1_1 | json -a dns_names | grep "\.svc\." | tail -1 | awk -F"\"" '{print $2}')
+        if [ -z "$ip" ]; then
+            # fail back to the IP number, if TCNS is not active
+            local ip=$(triton inst get ${PREFIX}_$1_1 | json -a ips.1)
+        fi
         local port=$2
     else
         local ip=$(docker-machine ip default 2>/dev/null || true)
@@ -189,10 +277,6 @@ startNginx() {
     command -v open >/dev/null 2>&1 && `open http://${NGINX}` || true
 }
 
-startCloudflare() {
-    ${COMPOSE} up -d cloudflare
-}
-
 # scale the entire application to 2 Nginx, 3 app servers, 3 CB nodes
 scale() {
     echo
@@ -236,6 +320,7 @@ if [ ! -z "$cmd" ]; then
     exit
 fi
 
+tritonConfigured
 env
 prep
 startDatabase
@@ -243,7 +328,6 @@ showConsoles
 setupCouchbase
 startApp
 startNginx
-startCloudflare
 
 echo
 echo 'Touchbase cluster is launched!'
