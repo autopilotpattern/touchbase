@@ -1,7 +1,7 @@
 #!/bin/bash
-set -e -o pipefail
+set -o pipefail
 
-# default values which can be overriden by -f or -p flags
+# default values which can be overridden by -f or -p flags
 CONFIG_FILE=
 PREFIX=tb
 
@@ -19,22 +19,23 @@ usage() {
 }
 
 tritonConfigured() {
+    # only check for Triton CLI if we're using the default Compose yaml
+    if [ ! -z "${COMPOSE_CFG}" ]; then
+        return
+    fi
 
     # is node-triton installed?
-    local triton_installed=0
-    command -v triton >/dev/null 2>&1 && triton_installed=1
-    if [ "0" = "$triton_installed" ]; then
-        echo
-        echo "Error!"
-        echo "The Triton CLI tool does not appear to be installed!"
+    which triton > /dev/null
+    if [ $? -ne 0 ]; then
+        tput rev
+        tput bold
+        echo 'Error:'
+        echo 'The Triton CLI tool does not appear to be installed'
+        tput sgr0
         echo
         echo "Please visit:"
         echo "https://www.joyent.com/blog/introducing-the-triton-command-line-tool"
         echo "for installation instructions."
-        echo
-
-        sleep 3
-        command -v open >/dev/null 2>&1 && `open https://www.joyent.com/blog/introducing-the-triton-command-line-tool` || true
 
         exit 1
     fi
@@ -52,9 +53,11 @@ tritonConfigured() {
     local triton_dc=$(triton profile get | grep "url:" | awk -F"/" '{print $3}' OFS="/" | awk -F"\." '{print $1}' OFS="/")
 
     if [ ! "$docker_user" = "$triton_user" ] || [ ! "$docker_dc" = "$triton_dc" ]; then
-        echo
-        echo "Error!"
-        echo "The Triton CLI configuration does not match the Docker CLI configuration!"
+        tput rev # reverse foreground and background colors
+        tput bold # bold
+        echo 'Error:'
+        echo 'The Triton CLI configuration does not match the Docker CLI configuration'
+        tput sgr0 # clear colors
         echo
         echo "Docker user: ${docker_user}"
         echo "Triton user: ${docker_user}"
@@ -67,10 +70,6 @@ tritonConfigured() {
         echo "Please visit:"
         echo "https://www.joyent.com/blog/introducing-the-triton-command-line-tool#using-profiles"
         echo "for instructions on how to configure and set profiles for Triton."
-        echo
-
-        sleep 3
-        command -v open >/dev/null 2>&1 && `open "https://www.joyent.com/blog/introducing-the-triton-command-line-tool#using-profiles"` || true
 
         exit 1
     fi
@@ -79,9 +78,11 @@ tritonConfigured() {
     local triton_cns_enabled=$(triton account get | grep cns | awk -F": " '{print $2}' OFS="/")
 
     if [ ! "true" = "$triton_cns_enabled" ]; then
-        echo
-        echo "Notice!"
-        echo "Triton CNS is not enabled for this account."
+        tput rev
+        tput bold
+        echo 'Notice:'
+        echo 'Triton CNS is not enabled for this account'
+        tput sgr0
         echo
         echo "Triton CNS, an automated DNS built into Triton, is not required, but this blueprint demonstrates its use."
         echo
@@ -92,11 +93,6 @@ tritonConfigured() {
         echo "Enable Triton CNS with the following command:"
         echo
         echo "triton account update triton_cns_enabled=true"
-        echo
-
-        sleep 3
-        command -v open >/dev/null 2>&1 && `open "https://www.joyent.com/blog/NEW-URL-HERE"` || true
-        sleep 3
     fi
 }
 
