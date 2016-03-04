@@ -18,22 +18,6 @@ usage() {
     echo 'that command, for testing purposes.'
 }
 
-env() {
-    if [ ! -f "_env" ]; then
-        echo 'You need a configuration file with credentials.'
-        echo 'Copying _env.example to _env'
-        cp _env.example _env
-        cat _env.example
-        exit 1
-    else
-        . _env
-    fi
-    export COUCHBASE_USER=${COUCHBASE_USER:-Administrator}
-    export COUCHBASE_PASS=${COUCHBASE_PASS:-password}
-    CB_RAM_QUOTA=${CB_RAM_QUOTA:-100}
-}
-
-
 tritonConfigured() {
 
     # is node-triton installed?
@@ -52,7 +36,7 @@ tritonConfigured() {
         sleep 3
         command -v open >/dev/null 2>&1 && `open https://www.joyent.com/blog/introducing-the-triton-command-line-tool` || true
 
-        exit
+        exit 1
     fi
 
     # Get username from Docker
@@ -88,7 +72,7 @@ tritonConfigured() {
         sleep 3
         command -v open >/dev/null 2>&1 && `open "https://www.joyent.com/blog/introducing-the-triton-command-line-tool#using-profiles"` || true
 
-        exit
+        exit 1
     fi
 
     # Is Triton CNS enabled
@@ -116,6 +100,25 @@ tritonConfigured() {
     fi
 }
 
+env() {
+    if [ ! -f "_env" ]; then
+        echo 'Creating an empty configuration file for Couchbase credentials.'
+        echo 'Copying _env.example to _env'
+        echo
+        echo 'Recommended: enter a custom database admin user/pass'
+        echo 'in the following _env file and re-run this script.'
+        echo
+        cp _env.example _env
+        cat _env.example
+        exit 1
+    else
+        . _env
+    fi
+    export COUCHBASE_USER=${COUCHBASE_USER:-Administrator}
+    export COUCHBASE_PASS=${COUCHBASE_PASS:-password}
+    CB_RAM_QUOTA=${CB_RAM_QUOTA:-100}
+}
+
 prep() {
     echo "Starting example application"
     echo "project prefix:      $PREFIX"
@@ -132,7 +135,7 @@ getIpPort() {
         # try to get a DNS name from Triton CNS
         local ip=$(triton inst get ${PREFIX}_$1_1 | json -a dns_names | grep "\.svc\." | tail -1 | awk -F"\"" '{print $2}')
         if [ -z "$ip" ]; then
-            # fail back to the IP number, if TCNS is not active
+            # fail back to the IP number, if CNS is not active
             local ip=$(triton inst get ${PREFIX}_$1_1 | json -a ips.1)
         fi
         local port=$2

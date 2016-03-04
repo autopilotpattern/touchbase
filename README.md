@@ -1,16 +1,19 @@
 triton-touchbase
 ==========
 
-*[Touchbase](https://github.com/couchbaselabs/touchbase) stack designed for container-native deployment on Joyent's Triton platform*
+*[Autopilot pattern](http://autopilot.io/) implementation of [Touchbase](https://github.com/couchbaselabs/touchbase)*
 
-This repo is a demonstation of a multi-tier container-native application architecture on [Joyent's](https://www.joyent.com/) Triton platform. It uses Touchbase and its supporting services as an example. It includes the following components:
+This repo is a demonstration of a multi-tier application with Node.js, Couchbase, and Nginx, designed to be self-operating according to the [autopilot pattern](http://autopilot.io/). This application also demonstrates [Triton](https://joyent.com/) Container Name Service, an automated DNS that makes it easy to address Docker containers on the internet.
+
+Specific components:
 
 - [Touchbase](https://www.joyent.com/blog/how-to-dockerize-a-complete-application#touchbase), a Node.js application
 - [Nginx](https://www.joyent.com/blog/how-to-dockerize-a-complete-application#nginx), acting as a load balancer for Touchbase nodes
 - [Couchbase](https://www.joyent.com/blog/how-to-dockerize-a-complete-application#couchbase), for the data tier
 - Consul, acting as a discovery service
 - Containerbuddy, to help with service discovery
-- Triton, our container-native infrastructure platform
+- Triton, Joyent's container-native infrastructure platform
+- Triton CNS, the automated DNS on Triton
 
 ![Diagram of Touchbase architecture](./doc/triton-touchbase.png)
 
@@ -21,7 +24,7 @@ You can run this entire stack using the [`start.sh` script](https://github.com/t
 Once you're ready:
 
 1. [Get a Joyent account](https://my.joyent.com/landing/signup/) and [add your SSH key](https://docs.joyent.com/public-cloud/getting-started).
-1. Install the [Docker Toolbox](https://docs.docker.com/installation/mac/) (including `docker` and `docker-compose`) on your laptop or other environment, as well as the [Joyent CloudAPI CLI tools](https://apidocs.joyent.com/cloudapi/#getting-started) (including the `smartdc` and `json` tools)
+1. Install the [Docker Toolbox](https://docs.docker.com/installation/mac/) (including `docker` and `docker-compose`) on your laptop or other environment, as well as the [Joyent Triton CLI](https://www.joyent.com/blog/introducing-the-triton-command-line-tool) (`triton` replaces our old `sdc-*` CLI tools)
 1. [Configure Docker and Docker Compose for use with Joyent](https://docs.joyent.com/public-cloud/api-access/docker):
 
 ```bash
@@ -36,26 +39,23 @@ At this point you can run the example on Triton:
 ./start.sh env
 # here you'll be asked to fill in the _env file
 ./start.sh
-
 ```
 
-or in your local Docker environment (note that you may need to increase the memory available to your docker-machine VM to run the full-scale cluster):
+Use the `docker-compose-local.yml` to run the application in a local Docker environment (note that you may need to increase the memory available to your Docker Machine VM to run the full-scale cluster):
 
 ```bash
 ./start.sh env
 ./start.sh -f docker-compose-local.yml
-
 ```
 
-The `_env` file that's created will need to be filled in with the values described below:
+The `_env` file that's created can optionally be filled in with the values described below. Note that the Couchbase password must meet [Couchbase's password requirements](http://docs.couchbase.com/admin/admin/security/security-inside-server.html), including a minimum length of seven (7) characters.
 
 ```
 COUCHBASE_USER=<the administrative user you want for your Couchbase cluster>
 COUCHBASE_PASS=<the password you want for that Couchbase user>
-
 ```
 
-As the start script runs, it will launch the Consul web UI and the Couchbase web UI. Once Nginx is running, it will launch the login page for the Touchbase site. At this point there is only one Couchbase node, one application server and one Nginx server and you will see the message:
+As the `start.sh` script runs, it will launch the Consul and Couchbase web UIs. Once Nginx is running, it will launch the login page for the Touchbase site. At this point there is only one Couchbase node, one application server and one Nginx server and you will see the message:
 
 ```
 Touchbase cluster is launched!
@@ -63,3 +63,5 @@ Try scaling it up by running: ./start.sh scale
 ```
 
 If you do so you'll be running `docker-compose scale` operations that add 2 more Couchbase and Touchbase nodes and 1 more Nginx node. You can watch as nodes become live by checking out the Consul and Couchbase web UIs.
+
+If running this on Triton with an account enabled for Triton CNS, you'll see the generated DNS names for the container services in your browser's URL bar. Simply CNAME your own domain to that generated DNS name for the `tb-nginx` service, and you can make the application public. [Learn more about Triton CNS at Joyent.com](https://www.joyent.com/blog/NEW-URL-HERE).
