@@ -87,7 +87,7 @@ tritonConfigured() {
         echo "Triton CNS, an automated DNS built into Triton, is not required, but this blueprint demonstrates its use."
         echo
         echo "Please visit:"
-        echo "https://www.joyent.com/blog/NEW-URL-HERE"
+        echo "https://www.joyent.com/blog/introducing-triton-container-name-service"
         echo "for information and usage details for Triton CNS."
         echo
         echo "Enable Triton CNS with the following command:"
@@ -264,7 +264,8 @@ startNginx() {
     echo
     ${COMPOSE} up -d nginx
     local NGINX=$(getIpPort nginx 80)
-    echo "Waiting for Nginx at $NGINX to pick up initial configuration."
+    echo 'Waiting for Nginx to pick up initial configuration.'
+    echo "Trying http://${NGINX} ..."
     while :
     do
         sleep 1
@@ -272,7 +273,8 @@ startNginx() {
         echo -ne .
     done
     echo
-    echo 'Opening web page...'
+    echo 'Opening Touchbase app at'
+    echo "http://${NGINX}"
     command -v open >/dev/null 2>&1 && `open http://${NGINX}` || true
 }
 

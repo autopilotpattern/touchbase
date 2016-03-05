@@ -7,13 +7,13 @@ This repo is a demonstration of a multi-tier application with Node.js, Couchbase
 
 Specific components:
 
-- [Touchbase](https://www.joyent.com/blog/how-to-dockerize-a-complete-application#touchbase), a Node.js application
-- [Nginx](https://www.joyent.com/blog/how-to-dockerize-a-complete-application#nginx), acting as a load balancer for Touchbase nodes
-- [Couchbase](https://www.joyent.com/blog/how-to-dockerize-a-complete-application#couchbase), for the data tier
-- Consul, acting as a discovery service
-- Containerbuddy, to help with service discovery
-- Triton, Joyent's container-native infrastructure platform
-- Triton CNS, the automated DNS on Triton
+- [Touchbase](https://www.joyent.com/blog/docker-nodejs-nginx-nosql-autopilot#touchbase), a Node.js application
+- [Nginx](https://www.joyent.com/blog/docker-nodejs-nginx-nosql-autopilot#nginx), acting as a load balancer for Touchbase nodes
+- [Couchbase](https://www.joyent.com/blog/docker-nodejs-nginx-nosql-autopilot#couchbase), for the data tier
+- [Consul](https://www.consul.io), acting as a service catalog to support discovery
+- [Containerbuddy](http://containerbuddy.io/), to help with service discovery
+- [Triton](https://www.joyent.com/), Joyent's container-native infrastructure platform
+- [Triton CNS](https://www.joyent.com/blog/introducing-triton-container-name-service), the automated DNS on Triton
 
 ![Diagram of Touchbase architecture](./doc/triton-touchbase.png)
 
@@ -64,4 +64,4 @@ Try scaling it up by running: ./start.sh scale
 
 If you do so you'll be running `docker-compose scale` operations that add 2 more Couchbase and Touchbase nodes and 1 more Nginx node. You can watch as nodes become live by checking out the Consul and Couchbase web UIs.
 
-If running this on Triton with an account enabled for Triton CNS, you'll see the generated DNS names for the container services in your browser's URL bar. Simply CNAME your own domain to that generated DNS name for the `tb-nginx` service, and you can make the application public. [Learn more about Triton CNS at Joyent.com](https://www.joyent.com/blog/NEW-URL-HERE).
+If running this on Triton with an account enabled for Triton CNS, you'll see the generated DNS names for the container services in your browser's URL bar. Simply CNAME your own domain to that generated DNS name for the `tb-nginx` service, and you can make the application public. [Learn more about Triton CNS at Joyent.com](https://www.joyent.com/blog/introducing-triton-container-name-service).
