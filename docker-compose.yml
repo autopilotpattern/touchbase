@@ -20,7 +20,7 @@ consul:
 # Scale this tier and each additional container/instance will automatically
 # self-configure as a member of the cluster
 couchbase:
-    image: misterbisson/triton-couchbase:enterprise-4.0.0-r1
+    image: autopilotpattern/couchbase:enterprise-4.0.0-r1
     restart: always
     links:
         - consul
@@ -43,7 +43,7 @@ couchbase:
 
 # the main application
 touchbase:
-    image: 0x74696d/triton-touchbase
+    image: autopilotpattern/touchbase
     links:
     - consul
     mem_limit: 1g
@@ -59,7 +59,7 @@ touchbase:
 
 # Nginx as a load-balancing tier and reverse proxy
 nginx:
-    image: 0x74696d/triton-touchbase-demo-nginx
+    image: autopilotpattern/touchbase-demo-nginx
     mem_limit: 512m
     ports:
     - 80

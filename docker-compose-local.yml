@@ -23,7 +23,7 @@ consul:
 # Scale this tier and each additional container/instance will automatically
 # self-configure as a member of the cluster
 couchbase:
-    image: misterbisson/triton-couchbase:enterprise-4.0.0-r1
+    image: autopilotpattern/couchbase:enterprise-4.0.0-r1
     restart: always
     links:
         - consul

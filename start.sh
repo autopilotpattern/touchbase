@@ -292,10 +292,10 @@ scale() {
 release() {
 	docker-compose -p tb -f docker-compose-local.yml build touchbase
 	docker-compose -p tb -f docker-compose-local.yml build nginx
-	docker tag -f tb_touchbase 0x74696d/triton-touchbase
-	docker tag -f tb_nginx 0x74696d/triton-touchbase-demo-nginx
-	docker push 0x74696d/triton-touchbase
-	docker push 0x74696d/triton-touchbase-demo-nginx
+	docker tag -f tb_touchbase autopilotpattern/touchbase
+	docker tag -f tb_nginx autopilotpattern/touchbase-demo-nginx
+	docker push autopilotpattern/touchbase
+	docker push autopilotpattern/touchbase-demo-nginx
 }
 
 while getopts "f:p:h" optchar; do
