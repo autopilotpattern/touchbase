@@ -1,4 +1,4 @@
-triton-touchbase
+Touchbase autopilot pattern
 ==========
 
 *[Autopilot pattern](http://autopilot.io/) implementation of [Touchbase](https://github.com/couchbaselabs/touchbase)*
@@ -19,7 +19,7 @@ Specific components:
 
 ### Running the example
 
-You can run this entire stack using the [`start.sh` script](https://github.com/tgross/triton-touchbase/blob/master/start.sh) found at the top of the repo. 
+You can run this entire stack using the [`start.sh` script](https://github.com/tgross/triton-touchbase/blob/master/start.sh) found at the top of the repo.
 
 Once you're ready:
 
