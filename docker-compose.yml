@@ -80,3 +80,5 @@ prometheus:
     links:
       - consul:consul
     env_file: _env
+    environment:
+      - CONSUL=consul

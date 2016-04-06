@@ -5,8 +5,9 @@
     {
       "name": "nginx",
       "port": 80,
-      "publicIp": true,
-      "health": "/usr/bin/curl --fail -s http://localhost/health",
+      "interfaces": ["eth1", "eth0"],
+      "health": ["/usr/bin/curl", "--fail", "-o", "/dev/null", "-s",
+                 "http://localhost/health"],
       "poll": 10,
       "ttl": 25
     }
@@ -17,5 +18,50 @@
       "poll": 7,
       "onChange": "/opt/containerbuddy/reload-nginx.sh"
     }
-  ]
+  ],
+  "telemetry": {
+    "name": "telemetry",
+    "url": "/telemetry",
+    "port": 9090,
+    "ttl": 30,
+    "poll": 10,
+    "sensors": [
+      {
+        "namespace": "tb",
+        "subsystem": "nginx",
+        "name": "connections_active",
+        "help": "Current number of active client connections",
+        "type": "gauge",
+        "poll": 5,
+        "check": ["/opt/containerbuddy/sensor.sh", "connections_active"]
+      },
+      {
+        "namespace": "tb",
+        "subsystem": "nginx",
+        "name": "connections_reading",
+        "help": "Current number of connections where nginx is reading the request header",
+        "type": "gauge",
+        "poll": 5,
+        "check": ["/opt/containerbuddy/sensor.sh", "connections_reading"]
+      },
+      {
+        "namespace": "tb",
+        "subsystem": "nginx",
+        "name": "connections_writing",
+        "help": "Current number of connections where nginx is writing the response back to the client",
+        "type": "gauge",
+        "poll": 5,
+        "check": ["/opt/containerbuddy/sensor.sh", "connections_writing"]
+      },
+      {
+        "namespace": "tb",
+        "subsystem": "nginx",
+        "name": "connections_waiting",
+        "help": "Current number of idle client connections waiting for a request",
+        "type": "gauge",
+        "poll": 5,
+        "check": ["/opt/containerbuddy/sensor.sh", "connections_writing"]
+      }
+    ]
+  }
 }

@@ -268,6 +268,22 @@ startNginx() {
     command -v open >/dev/null 2>&1 && `open http://${NGINX}` || true
 }
 
+startTelemetry() {
+    ${COMPOSE} up -d prometheus
+    local PROM=$(getIpPort prometheus 9090)
+    echo 'Waiting for Prometheus...'
+    while :
+    do
+        sleep 1
+        curl -s --fail -o /dev/null "http://${PROM}/metrics" && break
+        echo -ne .
+    done
+    echo
+    echo 'Opening Prometheus expression browser at'
+    echo "http://${PROM}/graph"
+    command -v open >/dev/null 2>&1 && `open http://${PROM}/graph` || true
+}
+
 # scale the entire application to 2 Nginx, 3 app servers, 3 CB nodes
 scale() {
     echo
@@ -320,6 +336,7 @@ showConsoles
 setupCouchbase
 startApp
 startNginx
+startTelemetry
 
 echo
 echo 'Touchbase cluster is launched!'

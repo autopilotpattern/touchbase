@@ -5,7 +5,7 @@ consul:
     restart: always
     mem_limit: 128m
     ports:
-      - 8500
+      - "8500:8500"
     expose:
       - 53
       - 8300
@@ -68,6 +68,7 @@ nginx:
       - 80
     expose:
       - 80
+      - 9090
     links:
       - consul:consul
     env_file: _env
@@ -84,9 +85,11 @@ prometheus:
     mem_limit: 128g
     restart: always
     ports:
-      - 9090
+      - "9090:9090"
     expose:
       - 9090
     links:
       - consul:consul
     env_file: _env
+    environment:
+      - CONSUL=consul
