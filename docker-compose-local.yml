@@ -1,79 +1,92 @@
-# Consul as a service discovery tier
+# Start with a single host which will bootstrap the cluster.
+# In production we'll want to use an HA cluster.
 consul:
     image: progrium/consul:latest
-    command: >
-      -server
-      -bootstrap-expect 1
-      -ui-dir /ui
     restart: always
     mem_limit: 128m
     ports:
-        - 53
-        - 8300
-        - 8301
-        - 8302
-        - 8400
-        - 8500
+      - 8500
+    expose:
+      - 53
+      - 8300
+      - 8301
+      - 8302
+      - 8400
+      - 8500
     dns:
-       - 127.0.0.1
-    labels:
-        - triton.cns.services=tb-consul
+      - 127.0.0.1
+    command: -server -bootstrap -ui-dir /ui
 
-# Manually bootstrap the first instance, then...
-# Scale this tier and each additional container/instance will automatically
+
+# The first instance will automatically bootstrap the Couchbase cluster.
+# Scale this tier and each additional instance will automatically
 # self-configure as a member of the cluster
 couchbase:
-    image: autopilotpattern/couchbase:enterprise-4.0.0-r1
+    image: autopilotpattern/couchbase:enterprise-4.0.0-r2 # r3 TODO
     restart: always
-    links:
-        - consul
     mem_limit: 1g
     ports:
-        - 8091
-        - 8092
-        - 8093
-        - 11207
-        - 11210
-        - 11211
-        - 18091
-        - 18092
+      - 8091
+      - 8092
+      - 8093
+    expose:
+      - 8091
+      - 8092
+      - 8093
+      - 11207
+      - 11210
+      - 11211
+      - 18091
+      - 18092
+    links:
+      - consul:consul
     env_file: _env
-    environment:
-        - CONSUL_HOST=http://consul:8500
-        - COUCHBASE_SERVICE_NAME=couchbase
-    labels:
-        - triton.cns.services=tb-couchbase
+
 
 # the main application
 touchbase:
     build: .
-    links:
-    - consul
+    restart: always
     mem_limit: 128m
     ports:
-    - 3000
-    restart: always
+      - 3000
+    links:
+      - consul:consul
+    env_file: _env
     command: >
       /opt/containerbuddy/containerbuddy
       -config file:///opt/containerbuddy/touchbase.json
-      /usr/local/bin/run-touchbase.sh
-    labels:
-        - triton.cns.services=tb-touchbase
+      node /usr/local/lib/node_modules/Couch411/app.js
+
 
 # Nginx as a load-balancing tier and reverse proxy
 nginx:
     build: nginx/
-    mem_limit: 512m
-    ports:
-    - 80
-    expose:
-    - 80
-    links:
-    - consul:consul
     restart: always
+    mem_limit: 128m
+    ports:
+      - 80
+    expose:
+      - 80
+    links:
+      - consul:consul
+    env_file: _env
+    environment:
+      - CONTAINERBUDDY=file:///opt/containerbuddy/nginx.json
     command: >
       /opt/containerbuddy/containerbuddy
-      -config file:///opt/containerbuddy/nginx.json
       nginx -g "daemon off;"
-    labels:
-        - triton.cns.services=tb-nginx
+
+
+# Prometheus server to gather telemetry
+prometheus:
+    image: autopilotpattern/prometheus
+    mem_limit: 128g
+    restart: always
+    ports:
+      - 9090
+    expose:
+      - 9090
+    links:
+      - consul:consul
+    env_file: _env

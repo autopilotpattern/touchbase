@@ -1,26 +1,26 @@
-# a minimal Nginx container including Containerbuddy and a simple virtulhost config
+# a minimal Nginx container including containerbuddy and a simple virtulhost config
 FROM nginx:latest
 
-# install curl and jq
+# install curl
 RUN apt-get update && \
     apt-get install -y \
     curl \
     unzip && \
     rm -rf /var/lib/apt/lists/*
 
-# we use consul-template to re-write our Nginx virtualhost config
 RUN curl -Lo /tmp/consul_template_0.11.0_linux_amd64.zip https://github.com/hashicorp/consul-template/releases/download/v0.11.0/consul_template_0.11.0_linux_amd64.zip && \
     unzip /tmp/consul_template_0.11.0_linux_amd64.zip && \
     mv consul-template /bin
 
 # get Containerbuddy release
-RUN export CB=containerbuddy-0.0.1-alpha &&\
-    mkdir -p /opt/containerbuddy && \
-    curl -Lo /tmp/${CB}.tar.gz \
-    https://github.com/joyent/containerbuddy/releases/download/0.0.1-alpha/${CB}.tar.gz && \
-	tar -xf /tmp/${CB}.tar.gz && \
-    mv /build/containerbuddy /opt/containerbuddy/
+ENV CONTAINERBUDDY_VERSION 1.4.0-rc1
+RUN export CB_SHA1=8d7c21c8c79c082ec47e956a219cd58206592c83 \
+    && mkdir -p /opt/containerbuddy \
+    && curl -Lso /tmp/containerbuddy.tar.gz \
+         "https://github.com/joyent/containerbuddy/releases/download/${CONTAINERBUDDY_VERSION}/containerbuddy-${CONTAINERBUDDY_VERSION}.tar.gz" \
+    && echo "${CB_SHA1}  /tmp/containerbuddy.tar.gz" | sha1sum -c \
+    && tar zxf /tmp/containerbuddy.tar.gz -C /opt/containerbuddy \
+    && rm /tmp/containerbuddy.tar.gz
 
-# add Containerbuddy and all our configuration
-ADD opt/containerbuddy /opt/containerbuddy/
-ADD etc/nginx/conf.d /etc/nginx/conf.d/
+# Add our configuration files and scripts
+COPY opt/containerbuddy /opt/containerbuddy/
