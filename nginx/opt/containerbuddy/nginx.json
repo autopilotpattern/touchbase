@@ -27,40 +27,18 @@
     "poll": 10,
     "sensors": [
       {
-        "namespace": "tb",
-        "subsystem": "nginx",
-        "name": "connections_active",
-        "help": "Current number of active client connections",
+        "name": "tb_nginx_connections_unhandled_total",
+        "help": "Number of accepted connnections that were not handled",
         "type": "gauge",
         "poll": 5,
-        "check": ["/opt/containerbuddy/sensor.sh", "connections_active"]
+        "check": ["/opt/containerbuddy/sensor.sh", "unhandled"]
       },
       {
-        "namespace": "tb",
-        "subsystem": "nginx",
-        "name": "connections_reading",
-        "help": "Current number of connections where nginx is reading the request header",
+        "name": "tb_nginx_connections_load",
+        "help": "Ratio of active connections (less waiting) to the maximum worker connections",
         "type": "gauge",
         "poll": 5,
-        "check": ["/opt/containerbuddy/sensor.sh", "connections_reading"]
-      },
-      {
-        "namespace": "tb",
-        "subsystem": "nginx",
-        "name": "connections_writing",
-        "help": "Current number of connections where nginx is writing the response back to the client",
-        "type": "gauge",
-        "poll": 5,
-        "check": ["/opt/containerbuddy/sensor.sh", "connections_writing"]
-      },
-      {
-        "namespace": "tb",
-        "subsystem": "nginx",
-        "name": "connections_waiting",
-        "help": "Current number of idle client connections waiting for a request",
-        "type": "gauge",
-        "poll": 5,
-        "check": ["/opt/containerbuddy/sensor.sh", "connections_writing"]
+        "check": ["/opt/containerbuddy/sensor.sh", "connections_load"]
       }
     ]
   }

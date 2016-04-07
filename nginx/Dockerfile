@@ -1,10 +1,11 @@
 # a minimal Nginx container including containerbuddy and a simple virtulhost config
 FROM nginx:latest
 
-# install curl
+# install some tooling
 RUN apt-get update && \
     apt-get install -y \
     curl \
+    bc \
     unzip && \
     rm -rf /var/lib/apt/lists/*
 
