@@ -20,11 +20,7 @@
     }
   ],
   "telemetry": {
-    "name": "telemetry",
-    "url": "/telemetry",
     "port": 9090,
-    "ttl": 30,
-    "poll": 10,
     "sensors": [
       {
         "name": "tb_nginx_connections_unhandled_total",

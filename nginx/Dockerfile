@@ -14,8 +14,8 @@ RUN curl -Lo /tmp/consul_template_0.11.0_linux_amd64.zip https://github.com/hash
     mv consul-template /bin
 
 # get Containerbuddy release
-ENV CONTAINERBUDDY_VERSION 1.4.0-rc2
-RUN export CB_SHA1=340b50316e52d8913d8e61527a1383a090cd5897 \
+ENV CONTAINERBUDDY_VERSION 1.4.0-rc3
+RUN export CB_SHA1=24a2babaff53e9829bcf4772cfe0462f08838a11 \
     && mkdir -p /opt/containerbuddy \
     && curl -Lso /tmp/containerbuddy.tar.gz \
          "https://github.com/joyent/containerbuddy/releases/download/${CONTAINERBUDDY_VERSION}/containerbuddy-${CONTAINERBUDDY_VERSION}.tar.gz" \
