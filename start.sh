@@ -147,22 +147,6 @@ startDatabase() {
     echo
     echo 'Starting Couchbase'
     ${COMPOSE} up -d --no-recreate couchbase
-    echo
-    echo -n 'Initializing cluster.'
-
-    sleep 1.3
-    COUCHBASERESPONSIVE=0
-    while [ $COUCHBASERESPONSIVE != 1 ]; do
-        echo -n '.'
-        RUNNING=$(docker inspect "${PREFIX}_couchbase_1" | json -a State.Running)
-        if [ "$RUNNING" == "true" ]
-        then
-            docker exec -it "${PREFIX}_couchbase_1" triton-bootstrap bootstrap benchmark
-            let COUCHBASERESPONSIVE=1
-        else
-            sleep 1.3
-        fi
-    done
 }
 
 # open the web consoles
@@ -177,7 +161,6 @@ showConsoles() {
     echo
     echo 'Couchbase cluster running and bootstrapped'
     echo "Dashboard: $CBDASHBOARD"
-    echo 'The username and password are printed in earlier messages'
     command -v open >/dev/null 2>&1 && `open http://${CBDASHBOARD}/index.html#sec=servers` || true
 }
 
@@ -219,7 +202,14 @@ setupCouchbase() {
     N1QLAPI=$(getIpPort couchbase 8093)
     echo
     echo 'Creating Couchbase buckets'
-    removeBucket benchmark
+    while true; do
+        echo -n '.'
+        curl -sf -u ${COUCHBASE_USER}:${COUCHBASE_PASS} \
+             -o /dev/null http://${CBAPI}/pools/nodes && break
+        sleep 1.3
+    done
+    echo
+
     createBucket users
     createBucket users_pictures
     createBucket users_publishments
@@ -278,6 +268,22 @@ startNginx() {
     command -v open >/dev/null 2>&1 && `open http://${NGINX}` || true
 }
 
+startTelemetry() {
+    ${COMPOSE} up -d prometheus
+    local PROM=$(getIpPort prometheus 9090)
+    echo 'Waiting for Prometheus...'
+    while :
+    do
+        sleep 1
+        curl -s --fail -o /dev/null "http://${PROM}/metrics" && break
+        echo -ne .
+    done
+    echo
+    echo 'Opening Prometheus expression browser at'
+    echo "http://${PROM}/graph"
+    command -v open >/dev/null 2>&1 && `open http://${PROM}/graph` || true
+}
+
 # scale the entire application to 2 Nginx, 3 app servers, 3 CB nodes
 scale() {
     echo
@@ -314,6 +320,9 @@ fi
 
 COMPOSE="docker-compose -p ${PREFIX} ${COMPOSE_CFG}"
 
+tritonConfigured
+env
+
 cmd=$1
 if [ ! -z "$cmd" ]; then
     shift 1
@@ -321,14 +330,13 @@ if [ ! -z "$cmd" ]; then
     exit
 fi
 
-tritonConfigured
-env
 prep
 startDatabase
 showConsoles
 setupCouchbase
 startApp
 startNginx
+startTelemetry
 
 echo
 echo 'Touchbase cluster is launched!'

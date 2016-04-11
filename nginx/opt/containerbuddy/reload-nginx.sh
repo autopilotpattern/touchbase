@@ -1,15 +1,53 @@
 #!/bin/bash
 
-if [ -z "$VIRTUALHOST" ]; then
-    # fetch latest virtualhost template from Consul k/v
-    curl -s --fail consul:8500/v1/kv/nginx/template?raw > /tmp/virtualhost.ctmpl
-else
-    # dump the $VIRTUALHOST environment variable as a file
-    echo $VIRTUALHOST > /tmp/virtualhost.ctmpl
-fi
+SERVICE_NAME=${SERVICE_NAME:-nginx}
+CONSUL=${CONSUL:-consul}
 
-# render virtualhost template using values from Consul and reload Nginx
-consul-template \
-    -once \
-    -consul consul:8500 \
-    -template "/tmp/virtualhost.ctmpl:/etc/nginx/conf.d/default.conf:nginx -s reload"
+# Render Nginx configuration template using values from Consul,
+# but do not reload because Nginx has't started yet
+preStart() {
+    getConfig
+    consul-template \
+        -once \
+        -consul ${CONSUL}:8500 \
+        -template "/tmp/default.conf.ctmpl:/etc/nginx/conf.d/default.conf"
+}
+
+# Render Nginx configuration template using values from Consul,
+# then gracefully reload Nginx
+onChange() {
+    getConfig
+    consul-template \
+        -once \
+        -consul ${CONSUL}:8500 \
+        -template "/tmp/default.conf.ctmpl:/etc/nginx/conf.d/default.conf:nginx -s reload"
+}
+
+getConfig() {
+    if [ -z "${NGINX_CONF}" ]; then
+        # fetch latest Nginx configuration template from Consul k/v
+        curl -s --fail ${CONSUL}:8500/v1/kv/${SERVICE_NAME}/template?raw > /tmp/default.conf.ctmpl
+    else
+        # dump the ${NGINX_CONF} environment variable as a file
+        # the quotes are important here to preserve newlines!
+        echo "${NGINX_CONF}" > /tmp/default.conf.ctmpl
+    fi
+}
+
+help() {
+    echo "Usage: ./reload.sh preStart  => first-run configuration for Nginx"
+    echo "       ./reload.sh onChange  => [default] update Nginx config on upstream changes"
+}
+
+until
+    cmd=$1
+    if [ -z "$cmd" ]; then
+        onChange
+    fi
+    shift 1
+    $cmd "$@"
+    [ "$?" -ne 127 ]
+do
+    onChange
+    exit
+done

@@ -1,5 +1,6 @@
 {
   "consul": "consul:8500",
+  "preStart": "/opt/containerbuddy/update-config.sh",
   "services": [
     {
       "name": "touchbase",
@@ -15,5 +16,24 @@
       "poll": 7,
       "onChange": "/opt/containerbuddy/update-config.sh"
     }
-  ]
+  ],
+  "telemetry": {
+    "port": 9090,
+    "sensors": [
+      {
+        "name": "tb_touchbase_memory_free",
+        "help": "Free memory",
+        "type": "gauge",
+        "poll": 5,
+        "check": ["/opt/containerbuddy/sensor.sh", "free"]
+      },
+      {
+        "name": "tb_touchbase_memory_used",
+        "help": "Used memory excluding shared/buffers/cached",
+        "type": "gauge",
+        "poll": 5,
+        "check": ["/opt/containerbuddy/sensor.sh", "used"]
+      }
+    ]
+  }
 }

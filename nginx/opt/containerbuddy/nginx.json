@@ -1,11 +1,13 @@
 {
   "consul": "consul:8500",
+  "preStart": "/opt/containerbuddy/reload-nginx.sh preStart",
   "services": [
     {
       "name": "nginx",
       "port": 80,
-      "publicIp": true,
-      "health": "/usr/bin/curl --fail -s http://localhost/health",
+      "interfaces": ["eth1", "eth0"],
+      "health": ["/usr/bin/curl", "--fail", "-o", "/dev/null", "-s",
+                 "http://localhost/health"],
       "poll": 10,
       "ttl": 25
     }
@@ -16,5 +18,24 @@
       "poll": 7,
       "onChange": "/opt/containerbuddy/reload-nginx.sh"
     }
-  ]
+  ],
+  "telemetry": {
+    "port": 9090,
+    "sensors": [
+      {
+        "name": "tb_nginx_connections_unhandled_total",
+        "help": "Number of accepted connnections that were not handled",
+        "type": "gauge",
+        "poll": 5,
+        "check": ["/opt/containerbuddy/sensor.sh", "unhandled"]
+      },
+      {
+        "name": "tb_nginx_connections_load",
+        "help": "Ratio of active connections (less waiting) to the maximum worker connections",
+        "type": "gauge",
+        "poll": 5,
+        "check": ["/opt/containerbuddy/sensor.sh", "connections_load"]
+      }
+    ]
+  }
 }
