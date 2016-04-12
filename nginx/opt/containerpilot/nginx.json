@@ -1,6 +1,6 @@
 {
   "consul": "consul:8500",
-  "preStart": "/opt/containerbuddy/reload-nginx.sh preStart",
+  "preStart": "/opt/containerpilot/reload-nginx.sh preStart",
   "services": [
     {
       "name": "nginx",
@@ -16,7 +16,7 @@
     {
       "name": "touchbase",
       "poll": 7,
-      "onChange": "/opt/containerbuddy/reload-nginx.sh"
+      "onChange": "/opt/containerpilot/reload-nginx.sh"
     }
   ],
   "telemetry": {
@@ -27,14 +27,14 @@
         "help": "Number of accepted connnections that were not handled",
         "type": "gauge",
         "poll": 5,
-        "check": ["/opt/containerbuddy/sensor.sh", "unhandled"]
+        "check": ["/opt/containerpilot/sensor.sh", "unhandled"]
       },
       {
         "name": "tb_nginx_connections_load",
         "help": "Ratio of active connections (less waiting) to the maximum worker connections",
         "type": "gauge",
         "poll": 5,
-        "check": ["/opt/containerbuddy/sensor.sh", "connections_load"]
+        "check": ["/opt/containerpilot/sensor.sh", "connections_load"]
       }
     ]
   }

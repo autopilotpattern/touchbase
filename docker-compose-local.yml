@@ -54,8 +54,8 @@ touchbase:
       - consul:consul
     env_file: _env
     command: >
-      /opt/containerbuddy/containerbuddy
-      -config file:///opt/containerbuddy/touchbase.json
+      /opt/containerpilot/containerpilot
+      -config file:///opt/containerpilot/touchbase.json
       node /usr/local/lib/node_modules/Couch411/app.js
 
 
@@ -73,9 +73,9 @@ nginx:
       - consul:consul
     env_file: _env
     environment:
-      - CONTAINERBUDDY=file:///opt/containerbuddy/nginx.json
+      - CONTAINERPILOT=file:///opt/containerpilot/nginx.json
     command: >
-      /opt/containerbuddy/containerbuddy
+      /opt/containerpilot/containerpilot
       nginx -g "daemon off;"
 
 

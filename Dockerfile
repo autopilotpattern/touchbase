@@ -1,4 +1,4 @@
-# a Node.js application container including Containerbuddy
+# a Node.js application container including ContainerPilot
 FROM node:slim
 
 # install curl
@@ -35,17 +35,17 @@ RUN curl -Lo /tmp/consul_template_0.11.0_linux_amd64.zip https://github.com/hash
     unzip /tmp/consul_template_0.11.0_linux_amd64.zip && \
     mv consul-template /usr/local/bin
 
-# get Containerbuddy release
-ENV CONTAINERBUDDY_VERSION 1.4.0-rc3
-RUN export CB_SHA1=24a2babaff53e9829bcf4772cfe0462f08838a11 \
-    && mkdir -p /opt/containerbuddy \
-    && curl -Lso /tmp/containerbuddy.tar.gz \
-         "https://github.com/joyent/containerbuddy/releases/download/${CONTAINERBUDDY_VERSION}/containerbuddy-${CONTAINERBUDDY_VERSION}.tar.gz" \
-    && echo "${CB_SHA1}  /tmp/containerbuddy.tar.gz" | sha1sum -c \
-    && tar zxf /tmp/containerbuddy.tar.gz -C /opt/containerbuddy \
-    && rm /tmp/containerbuddy.tar.gz
+# get ContainerPilot release
+ENV CONTAINERPILOT_VERSION 2.0.0
+RUN export CP_SHA1=a82b1257328551eb93fc9a8cc1dd3f3e64664dd5 \
+    && mkdir -p /opt/containerpilot \
+    && curl -Lso /tmp/containerpilot.tar.gz \
+         "https://github.com/joyent/containerpilot/releases/download/${CONTAINERPILOT_VERSION}/containerpilot-${CONTAINERPILOT_VERSION}.tar.gz" \
+    && echo "${CP_SHA1}  /tmp/containerpilot.tar.gz" | sha1sum -c \
+    && tar zxf /tmp/containerpilot.tar.gz -C /opt/containerpilot \
+    && rm /tmp/containerpilot.tar.gz
 
-# add Containerbuddy and configuration
-COPY touchbase.json /opt/containerbuddy/
-COPY update-config.sh /opt/containerbuddy/
-COPY sensor.sh /opt/containerbuddy/
+# add ContainerPilot and configuration
+COPY touchbase.json /opt/containerpilot/
+COPY update-config.sh /opt/containerpilot/
+COPY sensor.sh /opt/containerpilot/
