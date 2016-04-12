@@ -1,6 +1,6 @@
 {
   "consul": "consul:8500",
-  "preStart": "/opt/containerbuddy/update-config.sh",
+  "preStart": "/opt/containerpilot/update-config.sh",
   "services": [
     {
       "name": "touchbase",
@@ -14,7 +14,7 @@
     {
       "name": "couchbase",
       "poll": 7,
-      "onChange": "/opt/containerbuddy/update-config.sh"
+      "onChange": "/opt/containerpilot/update-config.sh"
     }
   ],
   "telemetry": {
@@ -25,14 +25,14 @@
         "help": "Free memory",
         "type": "gauge",
         "poll": 5,
-        "check": ["/opt/containerbuddy/sensor.sh", "free"]
+        "check": ["/opt/containerpilot/sensor.sh", "free"]
       },
       {
         "name": "tb_touchbase_memory_used",
         "help": "Used memory excluding shared/buffers/cached",
         "type": "gauge",
         "poll": 5,
-        "check": ["/opt/containerbuddy/sensor.sh", "used"]
+        "check": ["/opt/containerpilot/sensor.sh", "used"]
       }
     ]
   }

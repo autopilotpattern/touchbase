@@ -11,7 +11,7 @@ Specific components:
 - [Nginx](https://www.joyent.com/blog/docker-nodejs-nginx-nosql-autopilot#nginx), acting as a load balancer for Touchbase nodes
 - [Couchbase](https://www.joyent.com/blog/docker-nodejs-nginx-nosql-autopilot#couchbase), for the data tier
 - [Consul](https://www.consul.io), acting as a service catalog to support discovery
-- [Containerbuddy](http://containerbuddy.io/), to help with service discovery
+- [ContainerPilot](http://joyent.com/containerpilot), to help with service discovery
 - [Triton](https://www.joyent.com/), Joyent's container-native infrastructure platform
 - [Triton CNS](https://www.joyent.com/blog/introducing-triton-container-name-service), the automated DNS on Triton
 
