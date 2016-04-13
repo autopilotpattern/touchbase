@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 help() {
     echo 'Make requests to the Nginx stub_status endpoint and pull out metrics'
@@ -8,7 +9,7 @@ help() {
 
 # Cummulative number of dropped connections
 unhandled() {
-    local scraped=$(curl -s localhost/health)
+    local scraped=$(curl -s --fail localhost/health)
     local accepts=$(echo ${scraped} | awk 'FNR == 3 {print $1}')
     local handled=$(echo ${scraped} | awk 'FNR == 3 {print $2}')
     echo $(expr ${accepts} - ${handled})
@@ -16,7 +17,7 @@ unhandled() {
 
 # ratio of connections-in-use to available workers
 connections_load() {
-    local scraped=$(curl -s localhost/health)
+    local scraped=$(curl -s --fail localhost/health)
     local active=$(echo ${scraped} | awk '/Active connections/{print $3}')
     local waiting=$(echo ${scraped} | awk '/Reading/{print $6}')
     local workers=$(echo $(cat /etc/nginx/nginx.conf | perl -n -e'/worker_connections *(\d+)/ && print $1')

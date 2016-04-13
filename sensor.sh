@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 help() {
     echo 'Get memory information about the Touchbase service.'
