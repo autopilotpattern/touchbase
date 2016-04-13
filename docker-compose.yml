@@ -27,6 +27,8 @@ couchbase:
     links:
       - consul:consul
     env_file: _env
+    environment:
+      - CONSUL=consul
     labels:
       - triton.cns.services=tb-couchbase
 
