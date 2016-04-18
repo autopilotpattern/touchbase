@@ -6,7 +6,7 @@ Autopilot Pattern Touchbase
 [![DockerPulls](https://img.shields.io/docker/pulls/autopilotpattern/touchbase.svg)](https://registry.hub.docker.com/u/autopilotpattern/touchbase/)
 [![DockerStars](https://img.shields.io/docker/stars/autopilotpattern/touchbase.svg)](https://registry.hub.docker.com/u/autopilotpattern/touchbase/)
 [![ImageLayers](https://badge.imagelayers.io/autopilotpattern/touchbase:latest.svg)](https://imagelayers.io/?images=autopilotpattern/touchbase:latest)
-[![Join the chat at https://gitter.im/autopilotpattern/touchbase](https://badges.gitter.im/autopilotpattern/touchbase.svg)](https://gitter.im/autopilotpattern/touchbase)
+[![Join the chat at https://gitter.im/autopilotpattern/general](https://badges.gitter.im/autopilotpattern/general.svg)](https://gitter.im/autopilotpattern/general)
 
 This repo is a demonstration of a multi-tier application with Node.js, Couchbase, and Nginx, designed to be self-operating according to the [autopilot pattern](http://autopilot.io/). This application also demonstrates [Triton](https://joyent.com/) Container Name Service, an automated DNS that makes it easy to address Docker containers on the internet.
 
